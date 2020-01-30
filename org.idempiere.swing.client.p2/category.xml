@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.adempiere.ui.swing.feature_7.1.0.qualifier.jar" id="org.adempiere.ui.swing.feature" version="7.1.0.qualifier">
+      <category name="idempiere.swing.client"/>
+   </feature>
+   <category-def name="idempiere.swing.client" label="idempiere swing client"/>
+</site>

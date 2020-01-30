@@ -1,0 +1,19 @@
+*/target/
+**/lib/*.jar
+
+/.metadata/
+/PostgreSQL/
+/Oracle/
+/log/
+/*.log
+/idempiere.properties
+/idempiereEnv.properties
+/hazelcast.xml
+
+swingclient.product*.launch
+
+/RemoteSystemsTempFiles/
+External Plug-in Libraries
+.recommenders
+
+/runtime-server.product/

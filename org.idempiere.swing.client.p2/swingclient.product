@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="idempiere Swing Client" uid="org.adempiere.ui.swing.product" id="org.adempiere.ui.swing.client_product" application="org.adempiere.ui.swing.client" version="7.1.0" useFeatures="true" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>
+      </programArgs>
+      <vmArgs>-Dosgi.noShutdown=true -Dosgi.framework.activeThreadType=normal -Dosgi.compatibility.bootdelegation=true --add-modules=java.se --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.management/sun.management=ALL-UNNAMED --add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED --add-exports=java.base/jdk.internal.ref=ALL-UNNAMED --add-exports=java.desktop/sun.awt=ALL-UNNAMED --add-exports=java.sql.rowset/com.sun.rowset=ALL-UNNAMED --add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <launcher name="idempiere-client">
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="org.adempiere.base.feature" version="7.1.0.qualifier"/>
+      <feature id="org.adempiere.pipo.feature" version="7.1.0.qualifier"/>
+      <feature id="org.adempiere.ui.swing.feature" version="7.1.0.qualifier"/>
+      <feature id="org.idempiere.hazelcast.service.feature" version="7.1.0.qualifier"/>
+   </features>
+
+   <configurations>
+      <plugin id="org.adempiere.base" autoStart="true" startLevel="4" />
+      <plugin id="org.adempiere.pipo" autoStart="true" startLevel="0" />
+      <plugin id="org.adempiere.pipo.handlers" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.osgi.services" autoStart="true" startLevel="3" />
+      <plugin id="org.idempiere.hazelcast.service" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="org.apache.aries.spifly.dynamic.bundle" autoStart="true" startLevel="1" />
+      <property name="org.eclipse.equinox.simpleconfigurator.exclusiveInstallation" value="false" />
+   </configurations>
+
+</product>

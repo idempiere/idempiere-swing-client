@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <modelVersion>4.0.0</modelVersion>
+        <artifactId>org.idempiere.swing.client.main</artifactId>
+        <packaging>pom</packaging>
+        <parent>
+                <groupId>org.idempiere.swing.client</groupId>
+                <artifactId>org.idempiere.swing.client.parent</artifactId>
+                <version>7.1.0-SNAPSHOT</version>
+                <relativePath>org.idempiere.swing.client.parent/pom.xml</relativePath>
+        </parent>
+        <properties>
+			<idempiere.core.path>../idempiere</idempiere.core.path>
+        </properties>
+        <modules>
+			<module>org.adempiere.report.jasper.swing</module>
+			<module>org.adempiere.ui.swing</module>
+			<module>org.adempiere.ui.swing-feature</module>
+			<module>org.idempiere.swing.client.p2</module>
+			<module>${idempiere.core.path}/${idempiere.target}</module>
+		</modules>
+</project>
+
