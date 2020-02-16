@@ -152,7 +152,7 @@ public class VSchedulePanel extends JComponent implements MouseListener
 		FontMetrics fm = null;
 		Graphics g = getGraphics();
 		if (g == null)
-			g = Env.getGraphics(this);
+			g = AEnv.getGraphics(this);
 		if (g != null)
 			fm = g.getFontMetrics(g.getFont());		//	the "correct" way
 		m_dayWidth = 0;

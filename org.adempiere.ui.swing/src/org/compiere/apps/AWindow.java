@@ -25,7 +25,6 @@ import java.util.logging.Level;
 import org.compiere.model.MQuery;
 import org.compiere.swing.CFrame;
 import org.compiere.util.CLogger;
-import org.compiere.util.Env;
 
 /**
  *  Main Application Window.
@@ -62,7 +61,7 @@ public class AWindow extends CFrame
 	{
 		super(gc);
 		//	Set UI Components
-		this.setIconImage(Env.getImage("mWindow.png"));
+		this.setIconImage(AEnv.getImage("mWindow.png"));
 		this.getContentPane().add(m_APanel, BorderLayout.CENTER);
 		this.setGlassPane(m_glassPane);
 	}	//	AWindow

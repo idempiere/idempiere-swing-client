@@ -29,6 +29,7 @@ import java.util.logging.Level;
 
 import javax.swing.JFrame;
 
+import org.compiere.apps.AEnv;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.plaf.CompiereColor;
@@ -37,7 +38,6 @@ import org.compiere.swing.CButton;
 import org.compiere.swing.ColorEditor;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
-import org.compiere.util.Env;
 
 /**
  *  Color Editor.
@@ -307,7 +307,7 @@ public class VColor extends CButton
 	public void actionPerformed (ActionEvent e)
 	{
 		//  Show Dialog
-		CompiereColor cc = ColorEditor.showDialog((JFrame)Env.getParent(this), m_cc);
+		CompiereColor cc = ColorEditor.showDialog((JFrame)AEnv.getParent(this), m_cc);
 		if (cc == null)
 		{
 			log.info( "VColor.actionPerformed - no color");

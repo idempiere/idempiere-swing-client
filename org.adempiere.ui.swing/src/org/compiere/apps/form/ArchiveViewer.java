@@ -33,6 +33,7 @@ import java.util.logging.Level;
 import javax.swing.JSplitPane;
 
 import org.adempiere.pdf.viewer.PDFViewerBean;
+import org.compiere.apps.AEnv;
 import org.compiere.apps.ConfirmPanel;
 import org.compiere.grid.ed.VDate;
 import org.compiere.grid.ed.VLookup;
@@ -85,7 +86,7 @@ public class ArchiveViewer extends Archive
 			frame.getContentPane().add(panel, BorderLayout.CENTER);
 			frame.getContentPane().add(confirmPanel, BorderLayout.SOUTH);
 			//
-			m_frame.setIconImage(Env.getImage("Archive16.gif"));
+			m_frame.setIconImage(AEnv.getImage("Archive16.gif"));
 		}
 		catch(Exception e)
 		{

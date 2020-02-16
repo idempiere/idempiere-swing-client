@@ -240,7 +240,7 @@ public class Viewer extends CFrame
 	 */
 	private void jbInit() throws Exception
 	{
-		this.setIconImage(Env.getImage("mReport.png"));
+		this.setIconImage(AEnv.getImage("mReport.png"));
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		//
 		northPanel.setLayout(northLayout);

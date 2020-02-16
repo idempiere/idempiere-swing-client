@@ -23,12 +23,15 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -39,6 +42,7 @@ import java.util.logging.Level;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -47,6 +51,8 @@ import javax.swing.RepaintManager;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import org.adempiere.base.Core;
+import org.adempiere.base.IResourceFinder;
 import org.compiere.acct.Doc;
 import org.compiere.db.CConnection;
 import org.compiere.grid.ed.Calculator;
@@ -1087,5 +1093,65 @@ public final class AEnv
 				s_windows.clear();
 			}
 		}
-	}	
+	}
+	
+	/**
+	 *  Return JDialog or JFrame Parent
+	 *  @param container Container
+	 *  @return JDialog or JFrame of container
+	 */
+	public static Window getParent (Container container)
+	{
+		Container element = container;
+		while (element != null)
+		{
+			if (element instanceof JDialog || element instanceof JFrame)
+				return (Window)element;
+			if (element instanceof Window)
+				return (Window)element;
+			element = element.getParent();
+		}
+		return null;
+	}   //  getParent
+	
+	/**
+	 *	Get Graphics of container or its parent.
+	 *  The element may not have a Graphic if not displayed yet,
+	 * 	but the parent might have.
+	 *  @param container Container
+	 *  @return Graphics of container or null
+	 */
+	public static Graphics getGraphics (Container container)
+	{
+		Container element = container;
+		while (element != null)
+		{
+			Graphics g = element.getGraphics();
+			if (g != null)
+				return g;
+			element = element.getParent();
+		}
+		return null;
+	}	//	getGraphics
+	
+	/**************************************************************************
+	 *  Get Image with File name
+	 *
+	 *  @param fileNameInImageDir full file name in imgaes folder (e.g. Bean16.gif)
+	 *  @return image
+	 */
+	public static Image getImage (String fileNameInImageDir)
+	{
+		IResourceFinder rf = Core.getResourceFinder();
+		URL url =  rf.getResource("images/" + fileNameInImageDir);
+
+//		URL url = Adempiere.class.getResource("images/" + fileNameInImageDir);
+		if (url == null)
+		{
+			log.log(Level.SEVERE, "Not found: " +  fileNameInImageDir);
+			return null;
+		}
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		return tk.getImage(url);
+	}   //  getImage
 }	//	AEnv

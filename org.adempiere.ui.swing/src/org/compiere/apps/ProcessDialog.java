@@ -219,7 +219,7 @@ public class ProcessDialog extends CFrame
 	 */
 	private void jbInit() throws Exception
 	{
-		setIconImage(Env.getImage("mProcess.png"));
+		setIconImage(AEnv.getImage("mProcess.png"));
 		//
 		dialog.setLayout(mainLayout);
 		dialog.setMinimumSize(new Dimension(500, 200));

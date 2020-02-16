@@ -68,7 +68,7 @@ public final class ADialog
 		if (clearText != null && !clearText.equals(""))
 			out += "\n" + clearText;
 		//
-		Window parent = Env.getParent(c);
+		Window parent = AEnv.getParent(c);
 		if (parent == null)
 			parent = AEnv.getWindow(WindowNo);
 		//
@@ -109,7 +109,7 @@ public final class ADialog
 		if (msg != null && msg.length() > 0)
 			out.append("\n").append(msg);
 		//
-		Window parent = Env.getParent(c);
+		Window parent = AEnv.getParent(c);
 		if (parent == null)
 			parent = AEnv.getWindow(WindowNo);
 		//
@@ -162,7 +162,7 @@ public final class ADialog
 		if (msg != null && msg.length() > 0)
 			out.append("\n").append(msg);
 		//
-		Window parent = Env.getParent(c);
+		Window parent = AEnv.getParent(c);
 		if (parent == null)
 			parent = AEnv.getWindow(WindowNo);
 		//
@@ -217,7 +217,7 @@ public final class ADialog
 		if (msg != null && msg.length() > 0)
 			out.append("\n").append(msg);
 		//
-		Window parent = Env.getParent(c);
+		Window parent = AEnv.getParent(c);
 		if (parent == null)
 			parent = AEnv.getWindow(WindowNo);
 		//
@@ -271,7 +271,7 @@ public final class ADialog
 		if (msg != null && msg.length() > 0)
 			out.append("\n").append(msg);
 		//
-		Window parent = Env.getParent(c);
+		Window parent = AEnv.getParent(c);
 		if (parent == null)
 			parent = AEnv.getWindow(WindowNo);
 
@@ -331,7 +331,7 @@ public final class ADialog
 			out.append(Msg.getMsg(ctx, AD_Message));
 
 		//
-		Window parent = Env.getParent(c);
+		Window parent = AEnv.getParent(c);
 		if (parent == null)
 			parent = AEnv.getWindow(WindowNo);
 
@@ -372,7 +372,7 @@ public final class ADialog
 		if (parse.length() == 0)
 			parse = "ERROR parsing: " + ParseString;
 		//
-		Window parent = Env.getParent(c);
+		Window parent = AEnv.getParent(c);
 		if (parent == null)
 			parent = AEnv.getWindow(WindowNo);
 		//
