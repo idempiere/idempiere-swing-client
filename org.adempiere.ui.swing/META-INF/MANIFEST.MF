@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: iDempiere Swing Client
 Bundle-SymbolicName: org.adempiere.ui.swing;singleton:=true
-Bundle-Version: 7.1.0.qualifier
+Bundle-Version: 8.1.0.qualifier
 Bundle-ClassPath: .,
  lib/jpedal.jar,
  lib/looks.jar,
@@ -71,7 +71,8 @@ Export-Package: com.jgoodies.looks,
 Require-Bundle: org.adempiere.base;bundle-version="0.0.0",
  org.adempiere.ui;bundle-version="0.0.0",
  org.jfree.chart;bundle-version="1.0.19",
- org.jfree.jcommon;bundle-version="1.0.23"
+ org.jfree.jcommon;bundle-version="1.0.23",
+ org.adempiere.plugin.utils;bundle-version="8.1.0"
 Eclipse-ExtensibleAPI: true
 Eclipse-RegisterBuddy: org.adempiere.base
 Bundle-RequiredExecutionEnvironment: JavaSE-11
@@ -115,3 +116,4 @@ Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: org.adempiere.ui.swing
 Bundle-Vendor: iDempiere Community
+Bundle-Activator: org.adempiere.plugin.utils.Incremental2PackActivator
