@@ -127,7 +127,17 @@ public final class AMenu extends CFrame
 		MSession session = MSession.get (Env.getCtx(), true);		//	Start Session
 		session.setWebSession(UUID.randomUUID().toString());
 		session.setDescription(session.getDescription() + " " + "Swing Client");
-		session.saveEx();
+		int cid = Env.getAD_Client_ID(Env.getCtx());
+		try {				
+			if (session.getAD_Client_ID() == 0 && cid > 0) {
+				Env.setContext(Env.getCtx(), Env.AD_CLIENT_ID, 0);
+			}
+			session.saveEx();
+		} finally {
+			if (session.getAD_Client_ID() == 0 && cid > 0) {
+				Env.setContext(Env.getCtx(), Env.AD_CLIENT_ID, cid);
+			}
+		}
 
 		// Setting close operation/listener - teo_sarca [ 1684168 ]
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

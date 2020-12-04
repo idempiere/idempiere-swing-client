@@ -48,6 +48,7 @@ import org.compiere.grid.ed.VDate;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.MSystem;
 import org.compiere.model.MUser;
+import org.compiere.model.Query;
 import org.compiere.print.CPrinter;
 import org.compiere.swing.CButton;
 import org.compiere.swing.CDialog;
@@ -863,7 +864,18 @@ public final class ALogin extends CDialog
 		KeyNamePair[] clients = null;
 		try 
 		{
-			clients = m_login.getClients(m_user, new String(m_pwd), ROLE_TYPES_SWING);
+			int cid = Env.getAD_Client_ID(Env.getCtx());
+			try {
+				if (cid > 0) {
+					// forced potential cross tenant read - requires System client in context
+					Env.setContext(Env.getCtx(), Env.AD_CLIENT_ID, 0);
+				}
+				clients = m_login.getClients(m_user, new String(m_pwd), ROLE_TYPES_SWING);
+			} finally {
+				if (cid > 0) {
+					Env.setContext(Env.getCtx(), Env.AD_CLIENT_ID, cid);
+				}
+			}
 			if (clients == null || clients.length == 0)
 			{
 				String loginErrMsg = m_login.getLoginErrMsg();
