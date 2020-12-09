@@ -63,6 +63,8 @@ import org.compiere.model.MSysConfig;
 import org.compiere.model.MSystem;
 import org.compiere.model.MTreeNode;
 import org.compiere.model.MUser;
+import org.compiere.model.PO;
+
 import static org.compiere.model.SystemIDs.*;
 import org.compiere.swing.CButton;
 import org.compiere.swing.CFrame;
@@ -127,16 +129,11 @@ public final class AMenu extends CFrame
 		MSession session = MSession.get (Env.getCtx(), true);		//	Start Session
 		session.setWebSession(UUID.randomUUID().toString());
 		session.setDescription(session.getDescription() + " " + "Swing Client");
-		int cid = Env.getAD_Client_ID(Env.getCtx());
-		try {				
-			if (session.getAD_Client_ID() == 0 && cid > 0) {
-				Env.setContext(Env.getCtx(), Env.AD_CLIENT_ID, 0);
-			}
+		try {
+			PO.setCrossTenantSafe();
 			session.saveEx();
 		} finally {
-			if (session.getAD_Client_ID() == 0 && cid > 0) {
-				Env.setContext(Env.getCtx(), Env.AD_CLIENT_ID, cid);
-			}
+			PO.clearCrossTenantSafe();
 		}
 
 		// Setting close operation/listener - teo_sarca [ 1684168 ]
