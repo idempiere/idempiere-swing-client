@@ -77,10 +77,7 @@ public class ATask extends CFrame
 			jbInit();
 			AEnv.showCenterScreen(this);
 			//
-			if (task.isServerProcess())
-				info.setText("Executing on Server ...");
-			else
-				info.setText("Executing locally ...");
+			info.setText("Executing task ...");
 			String result = task.execute();
 			info.setText(result);
 			confirmPanel.getCancelButton().setEnabled(false);
