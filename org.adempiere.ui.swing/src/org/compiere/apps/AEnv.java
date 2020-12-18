@@ -56,7 +56,6 @@ import org.adempiere.base.IResourceFinder;
 import org.compiere.acct.Doc;
 import org.compiere.db.CConnection;
 import org.compiere.grid.ed.Calculator;
-import org.compiere.interfaces.Server;
 import org.compiere.model.MMenu;
 import org.compiere.model.MQuery;
 import org.compiere.model.MRole;
@@ -65,6 +64,7 @@ import org.compiere.swing.CButton;
 import org.compiere.swing.CFrame;
 import org.compiere.swing.CMenuItem;
 import org.compiere.util.CLogger;
+import org.compiere.util.CacheMgt;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Ini;
@@ -853,11 +853,7 @@ public final class AEnv
 
 		try
 		{
-			Server server = CConnection.get().getServer();
-			if (server != null)
-			{
-				server.cacheReset(Env.getRemoteCallCtx(Env.getCtx()), tableName, Record_ID); 
-			}
+			CacheMgt.get().reset(tableName, Record_ID);
 		}
 		catch (Exception e)
 		{
