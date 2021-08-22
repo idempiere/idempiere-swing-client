@@ -245,6 +245,8 @@ public final class APanel extends CPanel
 			m_curAPanelTab = null;
 		}
 		//  close panels
+		for (ChangeListener listener : tabPanel.getChangeListeners())
+			tabPanel.removeChangeListener(listener);
 		tabPanel.dispose(this);
 		tabPanel = null;
 		//  All Workbenches
