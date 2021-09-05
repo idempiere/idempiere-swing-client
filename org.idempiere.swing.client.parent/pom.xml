@@ -5,11 +5,12 @@
 
 	<groupId>org.idempiere.swing.client</groupId>
 	<artifactId>org.idempiere.swing.client.parent</artifactId>
-	<version>8.2.0-SNAPSHOT</version>
+	<version>${revision}</version>
 	<packaging>pom</packaging>
 	<name>Maven parent project for iDempiere Swing Client</name>
 
 	<properties>
+		<revision>9.0.0-SNAPSHOT</revision>
 		<tycho.version>2.4.0</tycho.version>
 		<tycho.extras.version>${tycho.version}</tycho.extras.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
