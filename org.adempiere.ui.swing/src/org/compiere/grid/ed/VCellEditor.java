@@ -34,7 +34,6 @@ import javax.swing.table.TableCellEditor;
 
 import org.adempiere.plaf.AdempierePLAF;
 import org.compiere.model.GridField;
-import org.compiere.model.GridTable;
 import org.compiere.util.CLogger;
 
 /**
@@ -206,7 +205,7 @@ public final class VCellEditor extends AbstractCellEditor
 			return;
 		if (log.isLoggable(Level.FINE)) log.fine(e.getPropertyName() + "=" + e.getNewValue());
 		//
-		((GridTable)m_table.getModel()).setChanged(true);
+		m_table.setValueAt(e.getNewValue(), m_table.getEditingRow(), m_table.getEditingColumn());
 	}   //  vetoableChange
 
 	/**
