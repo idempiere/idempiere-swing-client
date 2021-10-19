@@ -104,7 +104,6 @@
         <setEntry value="com.google.zxing.core@default:default"/>
         <setEntry value="com.ibm.icu@default:default"/>
         <setEntry value="com.jaspersoft.studio.bundles.barbecue@default:default"/>
-        <setEntry value="com.jaspersoft.studio.bundles.commons-digester@default:default"/>
         <setEntry value="com.jaspersoft.studio.bundles.itext@default:default"/>
         <setEntry value="com.sun.activation.jakarta.activation@default:default"/>
         <setEntry value="com.sun.istack.commons-runtime@default:default"/>
@@ -148,6 +147,7 @@
         <setEntry value="org.apache.aries.spifly.dynamic.bundle@1:true"/>
         <setEntry value="org.apache.aries.util@default:default"/>
         <setEntry value="org.apache.commons.collections@default:default"/>
+        <setEntry value="org.apache.commons.commons-beanutils@default:default"/>
         <setEntry value="org.apache.commons.commons-codec@default:default"/>
         <setEntry value="org.apache.commons.commons-collections4@default:default"/>
         <setEntry value="org.apache.commons.commons-compress@default:default"/>
@@ -156,6 +156,7 @@
         <setEntry value="org.apache.commons.commons-io@default:default"/>
         <setEntry value="org.apache.commons.commons-net@default:default"/>
         <setEntry value="org.apache.commons.commons-text@default:default"/>
+        <setEntry value="org.apache.commons.digester@default:default"/>
         <setEntry value="org.apache.commons.discovery@default:default"/>
         <setEntry value="org.apache.commons.lang3@default:default"/>
         <setEntry value="org.apache.commons.lang@default:default"/>
@@ -313,7 +314,6 @@
         <setEntry value="wrapped.org.apache.xmlbeans.xmlbeans@default:default"/>
         <setEntry value="wrapped.org.jfree.jcommon@default:default"/>
         <setEntry value="wrapped.org.jfree.jfreechart@default:default"/>
-        <setEntry value="wrapped.org.springframework.spring-jcl@default:default"/>
         <setEntry value="wrapped.wsdl4j.wsdl4j@default:default"/>
         <setEntry value="xstream@default:default"/>
     </setAttribute>
