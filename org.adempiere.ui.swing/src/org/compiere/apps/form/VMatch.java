@@ -90,15 +90,6 @@ public class VMatch extends Match
 			frame.getContentPane().add(panel, BorderLayout.CENTER);
 			frame.getContentPane().add(statusBar, BorderLayout.SOUTH);
 			//
-			new Thread()
-			{
-				public void run()
-				{
-					log.info("Starting ...");
-					MMatchPO.consolidate(Env.getCtx());
-					log.info("... Done");
-				}
-			}.start();
 		}
 		catch(Exception e)
 		{
@@ -372,7 +363,7 @@ public class VMatch extends Match
 			statusBar.setStatusDB(0);
 		}
 		else if (e.getSource() == bProcess) {
-			cmd_process(xMatchedTable, xMatchedToTable, matchMode.getSelectedIndex(), matchFrom.getSelectedIndex(), matchTo.getSelectedItem(), m_xMatched);
+			cmd_process(xMatchedTable, xMatchedToTable, matchMode.getSelectedIndex(), matchFrom.getSelectedIndex(), (String)matchTo.getSelectedItem(), m_xMatched);
 			xMatchedTable = (MiniTable) cmd_search(xMatchedTable, matchFrom.getSelectedIndex(), (String)matchTo.getSelectedItem(), product, vendor, from, to, matchMode.getSelectedIndex() == MODE_MATCHED);
 			xMatched.setValue(Env.ZERO);
 			//  Status Info
