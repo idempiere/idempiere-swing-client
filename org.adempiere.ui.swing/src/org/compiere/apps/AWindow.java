@@ -75,20 +75,6 @@ public class AWindow extends CFrame
 	private static CLogger 	log = CLogger.getCLogger(AWindow.class);
 
 	/**
-	 *  Dynamic Initialization Workbench
-	 *  @param AD_Workbench_ID workbench
-	 *  @return true if loaded OK
-	 */
-	protected boolean initWorkbench (int AD_Workbench_ID)
-	{
-		this.setName("AWindow_WB_" + AD_Workbench_ID);
-		boolean loadedOK = m_APanel.initPanel (AD_Workbench_ID, 0, null);
-		//
-		commonInit();
-		return loadedOK;
-	}   //  initWorkbench
-
-	/**
 	 *	Dynamic Initialization Single Window
 	 *  @param AD_Window_ID window
 	 *  @param query query
@@ -99,7 +85,7 @@ public class AWindow extends CFrame
 		this.setName("AWindow_" + AD_Window_ID);
 		setAD_Window_ID(AD_Window_ID);
 		//
-		boolean loadedOK = m_APanel.initPanel (0, AD_Window_ID, query);
+		boolean loadedOK = m_APanel.initPanel (AD_Window_ID, query);
 		if (loadedOK)
 		{
 			commonInit();

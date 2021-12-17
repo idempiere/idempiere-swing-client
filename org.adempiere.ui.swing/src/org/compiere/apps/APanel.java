@@ -97,7 +97,6 @@ import org.compiere.model.GridTab;
 import org.compiere.model.GridTable;
 import org.compiere.model.GridWindow;
 import org.compiere.model.GridWindowVO;
-import org.compiere.model.GridWorkbench;
 import org.compiere.model.Lookup;
 import org.compiere.model.MLookupFactory;
 import org.compiere.model.MProcess;
@@ -249,20 +248,13 @@ public final class APanel extends CPanel
 			tabPanel.removeChangeListener(listener);
 		tabPanel.dispose(this);
 		tabPanel = null;
-		//  All Workbenches
-		for (int i = 0; i < m_mWorkbench.getWindowCount(); i++)
-		{
-			m_curWindowNo = m_mWorkbench.getWindowNo(i);
-			if (log.isLoggable(Level.INFO)) log.info("#" + m_curWindowNo);
-			Env.setAutoCommit(m_ctx, m_curWindowNo, false);
-			m_mWorkbench.dispose(i);
-			Env.clearWinContext(m_ctx, m_curWindowNo);
-		}   //  all Workbenchens
+		m_curWindowNo = m_Window.getWindowNo();
+		if (log.isLoggable(Level.INFO)) log.info("#" + m_curWindowNo);
+		Env.setAutoCommit(m_ctx, m_curWindowNo, false);
+		m_Window.dispose();
+		Env.clearWinContext(m_ctx, m_curWindowNo);
 
-		//  Get rid of remaining model
-		if (m_mWorkbench != null)
-			m_mWorkbench.dispose();
-		m_mWorkbench = null;
+		m_Window = null;
 		//  MenuBar
 		if (menuBar != null)
 			menuBar.removeAll();
@@ -610,24 +602,12 @@ public final class APanel extends CPanel
 	 */
 	public String getTitle()
 	{
-		if (m_mWorkbench != null && m_mWorkbench.getWindowCount() > 1)
-		{
-			StringBuilder sb = new StringBuilder();
-			sb.append(m_mWorkbench.getName()).append("  ")
-				.append(Env.getContext(m_ctx, "#AD_User_Name")).append("@")
-				.append(Env.getContext(m_ctx, "#AD_Client_Name")).append(".")
-				.append(Env.getContext(m_ctx, "#AD_Org_Name")).append(" [")
-				.append(Env.getContext(m_ctx, "#DB_UID")).append("]");
-			return sb.toString();
-		}
 		return Env.getHeader(m_ctx, m_curWindowNo);
 	}	//	getTitle
 
 
 	private Properties      m_ctx;
 
-	/** Workbench Model                                 */
-	private GridWorkbench	m_mWorkbench;
 	/** Current MTab                                    */
 	private GridTab			m_curTab;
 	/** Current GridController                          */
@@ -658,6 +638,10 @@ public final class APanel extends CPanel
 
 	private HashMap<Integer, GridController> includedMap;
 
+	private int m_AD_Window_ID;
+
+	private GridWindow m_Window;
+
 
 	/**************************************************************************
 	 *	Dynamic Panel Initialization - either single window or workbench.
@@ -671,248 +655,180 @@ public final class APanel extends CPanel
 	 *          - Tab           (GridController)
 	 *  </pre>
 	 *  tabPanel
-	 *  @param AD_Workbench_ID  if > 0 this is a workbench, AD_Window_ID ignored
 	 *  @param AD_Window_ID     if not a workbench, Window ID
 	 *  @param query			if not a Workbench, Zoom Query - additional SQL where clause
 	 *  @return true if Panel is initialized successfully
 	 */
-	public boolean initPanel (int AD_Workbench_ID, int AD_Window_ID, MQuery query)
+	public boolean initPanel (int AD_Window_ID, MQuery query)
 	{
-		if (log.isLoggable(Level.INFO)) log.info("WB=" + AD_Workbench_ID + ", Win=" + AD_Window_ID + ", Query=" + query);
 		this.setName("APanel" + AD_Window_ID);
 
-		//  Single Window
-		if (AD_Workbench_ID == 0)
-			m_mWorkbench = new GridWorkbench(m_ctx, AD_Window_ID);
-		else
-		//  Workbench
-		{
-		//	m_mWorkbench = new MWorkbench(m_ctx);
-		//	if (!m_mWorkbench.initWorkbench (AD_Workbench_ID))
-		//	{
-		//		log.log(Level.SEVERE, "APanel.initWindow - No Workbench Model");
-		//		return false;
-		//	}
-		//	tabPanel.setWorkbench(true);
-		//	tabPanel.addChangeListener(this);
-			ADialog.warn(0, this, "","Not implemented yet");
-			return false;
-		}
-
-		Dimension windowSize = m_mWorkbench.getWindowSize();
+		Dimension windowSize = null;
 
 		MQuery detailQuery = null;
-		/**
-		 *  WorkBench Loop
-		 */
-		for (int wb = 0; wb < m_mWorkbench.getWindowCount(); wb++)
+		
+		m_AD_Window_ID = AD_Window_ID;
+		
+		//  Get/set WindowNo
+		m_curWindowNo = AEnv.createWindowNo (this);			                //  Timing: ca. 1.5 sec
+		//  Set AutoCommit for this Window
+		Env.setAutoCommit(m_ctx, m_curWindowNo, Env.isAutoCommit(m_ctx));
+		boolean autoNew = Env.isAutoNew(m_ctx);
+		Env.setAutoNew(m_ctx, m_curWindowNo, autoNew);
+
+		//  Workbench Window
+		VTabbedPane window = tabPanel;
+		window.setWorkbench(false);
+		//  Window Init
+		window.addChangeListener(this);
+
+		includedMap = new HashMap<Integer,GridController>(4);
+		//
+		GridWindowVO wVO = Env.getMWindowVO(m_curWindowNo, m_AD_Window_ID, 0);
+		if (wVO == null)
 		{
-			//  Get/set WindowNo
-			m_curWindowNo = AEnv.createWindowNo (this);			                //  Timing: ca. 1.5 sec
-			m_mWorkbench.setWindowNo(wb, m_curWindowNo);
-			//  Set AutoCommit for this Window
-			Env.setAutoCommit(m_ctx, m_curWindowNo, Env.isAutoCommit(m_ctx));
-			boolean autoNew = Env.isAutoNew(m_ctx);
-			Env.setAutoNew(m_ctx, m_curWindowNo, autoNew);
+			ADialog.error(0, null, "AccessTableNoView", "(No Window Model Info)");
+			return false;
+		}
+		m_Window = new GridWindow (wVO, true);			                //  Timing: ca. 0.3-1 sec
+		//	Set SO/AutoNew for Window
+		Env.setContext(m_ctx, m_curWindowNo, "IsSOTrx", m_Window.isSOTrx());
+		if (!autoNew && m_Window.isTransaction())
+			Env.setAutoNew(m_ctx, m_curWindowNo, true);
+		m_onlyCurrentRows = m_Window.isTransaction();	//	default = only current
+		if (windowSize == null)
+			windowSize = m_Window.getWindowSize();
 
-			//  Workbench Window
-			VTabbedPane window = null;
-			//  just one window
-			if (m_mWorkbench.getWindowCount() == 1)
+		/**
+		 *  Window Tabs
+		 */
+		int tabSize = m_Window.getTabCount();
+		boolean goSingleRow = query != null;	//	Zoom Query
+		for (int tab = 0; tab < tabSize; tab++)
+		{
+			boolean included = false;
+			//  MTab
+			if (tab == 0) m_Window.initTab(0);
+			GridTab gTab = m_Window.getTab(tab);
+			Env.setContext(m_ctx, m_curWindowNo, tab, GridTab.CTX_TabLevel, Integer.toString(gTab.getTabLevel()));
+			//  Query first tab
+			if (tab == 0)
 			{
-				window = tabPanel;
-				window.setWorkbench(false);
-			}
-			else
-			{
-				VTabbedPane tp = new VTabbedPane(false);
-				window = tp;
-			}
-			//  Window Init
-			window.addChangeListener(this);
-
-			/**
-			 *  Init Model
-			 */
-			int wbType = m_mWorkbench.getWindowType(wb);
-
-			/**
-			 *  Window
-			 */
-			if (wbType == GridWorkbench.TYPE_WINDOW)
-			{
-				includedMap = new HashMap<Integer,GridController>(4);
-				//
-				GridWindowVO wVO = Env.getMWindowVO(m_curWindowNo, m_mWorkbench.getWindowID(wb), 0);
-				if (wVO == null)
+				if (query != null && query.getZoomTableName() != null && query.getZoomColumnName() != null
+					&& query.getZoomValue() instanceof Integer && (Integer)query.getZoomValue() > 0)
+		    	{
+		    		if (!query.getZoomTableName().equalsIgnoreCase(gTab.getTableName()))
+		    		{
+		    			detailQuery = query;
+		    			query = new MQuery();
+		    			query.addRestriction("1=2");
+		    		}
+		    	}
+				isCancel = false; //Goodwill
+				query = initialQuery (query, gTab);
+				if (isCancel) return false; //Cancel opening window
+				if (query != null && query.getRecordCount() <= 1)
+					goSingleRow = true;
+				//	Set initial Query on first tab
+				if (query != null)
 				{
-					ADialog.error(0, null, "AccessTableNoView", "(No Window Model Info)");
-					return false;
+					m_onlyCurrentRows = false;  //  Query might involve history
+					gTab.setQuery(query);
 				}
-				GridWindow mWindow = new GridWindow (wVO, true);			                //  Timing: ca. 0.3-1 sec
-				//	Set SO/AutoNew for Window
-				Env.setContext(m_ctx, m_curWindowNo, "IsSOTrx", mWindow.isSOTrx());
-				if (!autoNew && mWindow.isTransaction())
-					Env.setAutoNew(m_ctx, m_curWindowNo, true);
-				m_mWorkbench.setMWindow(wb, mWindow);
-				if (wb == 0)
-					m_onlyCurrentRows = mWindow.isTransaction();	//	default = only current
-				if (windowSize == null)
-					windowSize = mWindow.getWindowSize();
+				m_curTab = gTab;
+			}	//	query on first tab
 
-				/**
-				 *  Window Tabs
-				 */
-				int tabSize = mWindow.getTabCount();
-				boolean goSingleRow = query != null;	//	Zoom Query
-				for (int tab = 0; tab < tabSize; tab++)
+			Component tabElement = null;
+			//  GridController
+			if (gTab.isSortTab())
+			{
+				VSortTab st = new VSortTab(m_curWindowNo, gTab.getAD_Table_ID(),
+					gTab.getAD_ColumnSortOrder_ID(), gTab.getAD_ColumnSortYesNo_ID());
+				st.setTabLevel(gTab.getTabLevel());
+				tabElement = st;
+			}
+			else	//	normal tab
+			{
+				GridController gc = new GridController();			        //  Timing: ca. .1 sec
+				CompiereColor cc = CompiereColor.getCompiereColor(m_Window.getColor());
+				if (cc != null)
+					gc.setBackgroundColor(cc);                  //  set color on Window level
+				gc.initGrid(gTab, false, m_curWindowNo, this, m_Window, (tab != 0));  //  will set color on Tab level
+																//  Timing: ca. 6-7 sec for first .2 for next
+				gc.addDataStatusListener(this);
+				gc.registerESCAction(aIgnore);      //  register Escape Key
+				//	Set First Tab
+				if (tab == 0)
 				{
-					boolean included = false;
-					//  MTab
-					if (tab == 0) mWindow.initTab(0);
-					GridTab gTab = mWindow.getTab(tab);
-					Env.setContext(m_ctx, m_curWindowNo, tab, GridTab.CTX_TabLevel, Integer.toString(gTab.getTabLevel()));
-					//  Query first tab
-					if (tab == 0)
-					{
-						//  initial user query for single workbench tab
-						if (m_mWorkbench.getWindowCount() == 1)
-						{
-							if (query != null && query.getZoomTableName() != null && query.getZoomColumnName() != null
-								&& query.getZoomValue() instanceof Integer && (Integer)query.getZoomValue() > 0)
-					    	{
-					    		if (!query.getZoomTableName().equalsIgnoreCase(gTab.getTableName()))
-					    		{
-					    			detailQuery = query;
-					    			query = new MQuery();
-					    			query.addRestriction("1=2");
-					    		}
-					    	}
-							isCancel = false; //Goodwill
-							query = initialQuery (query, gTab);
-							if (isCancel) return false; //Cancel opening window
-							if (query != null && query.getRecordCount() <= 1)
-								goSingleRow = true;
-						}
-						else if (wb != 0)
-						//  workbench dynamic query for dependent windows
-						{
-							query = m_mWorkbench.getQuery();
-						}
-						//	Set initial Query on first tab
-						if (query != null)
-						{
-							m_onlyCurrentRows = false;  //  Query might involve history
-							gTab.setQuery(query);
-						}
-						if (wb == 0)
-							m_curTab = gTab;
-					}	//	query on first tab
+					m_curGC = gc;
+					Dimension size = gc.getPreferredSize();     //  Screen Sizing
+					size.width += 4;
+					size.height += 4;
+					gc.setPreferredSize(size);
+				}
+				tabElement = gc;
+				//	If we have a zoom query, switch to single row
+				if (tab == 0 && goSingleRow)
+					gc.switchSingleRow();
 
-					Component tabElement = null;
-					//  GridController
-					if (gTab.isSortTab())
+                // FR [ 1757088 ]
+				GridField[] fields = gc.getMTab().getFields();
+				int m_tab_id = 0;
+				for(int f =0 ; f < fields.length ; f ++)
+				{
+					m_tab_id = fields[f].getIncluded_Tab_ID();
+					if ( m_tab_id != 0)
 					{
-						VSortTab st = new VSortTab(m_curWindowNo, gTab.getAD_Table_ID(),
-							gTab.getAD_ColumnSortOrder_ID(), gTab.getAD_ColumnSortYesNo_ID());
-						st.setTabLevel(gTab.getTabLevel());
-						tabElement = st;
+						includedMap.put(m_tab_id, gc);
 					}
-					else	//	normal tab
+				}
+
+				//	Is this tab included?
+				if (includedMap.size() > 0)
+				{
+					GridController parent = (GridController)includedMap.get(Integer.valueOf(gTab.getAD_Tab_ID()));
+					if (parent != null)
 					{
-						GridController gc = new GridController();			        //  Timing: ca. .1 sec
-						CompiereColor cc = CompiereColor.getCompiereColor(mWindow.getColor());
-						if (cc != null)
-							gc.setBackgroundColor(cc);                  //  set color on Window level
-						gc.initGrid(gTab, false, m_curWindowNo, this, mWindow, (tab != 0));  //  will set color on Tab level
-																		//  Timing: ca. 6-7 sec for first .2 for next
-						gc.addDataStatusListener(this);
-						gc.registerESCAction(aIgnore);      //  register Escape Key
-						//	Set First Tab
-						if (wb == 0 && tab == 0)
-						{
-							m_curGC = gc;
-							Dimension size = gc.getPreferredSize();     //  Screen Sizing
-							size.width += 4;
-							size.height += 4;
-							gc.setPreferredSize(size);
-						}
-						tabElement = gc;
-						//	If we have a zoom query, switch to single row
-						if (tab == 0 && goSingleRow)
-							gc.switchSingleRow();
-
-                        // FR [ 1757088 ]
-						GridField[] fields = gc.getMTab().getFields();
-						int m_tab_id = 0;
-						for(int f =0 ; f < fields.length ; f ++)
-						{
-							m_tab_id = fields[f].getIncluded_Tab_ID();
-							if ( m_tab_id != 0)
-							{
-								includedMap.put(m_tab_id, gc);
-							}
-						}
-
-						//	Is this tab included?
-						if (includedMap.size() > 0)
-						{
-							GridController parent = (GridController)includedMap.get(Integer.valueOf(gTab.getAD_Tab_ID()));
-							if (parent != null)
-							{
-								// FR [ 1757088 ]
-								gc.removeDataStatusListener(this);
-								GridSynchronizer synchronizer = new GridSynchronizer(mWindow, parent, gc);
-								if (parent == m_curGC)
-									synchronizer.activateChild();
-								included = parent.includeTab(gc,this,synchronizer);
-							}
-						}
-						initSwitchLineAction();
-					}	//	normal tab
-
-					if (!included)	//  Add to TabbedPane
-					{
-						StringBuilder tabName = new StringBuilder ();
-						tabName.append ("<html>");
-						if (gTab.isReadOnly())
-							tabName.append("<i>");
-						int pos = gTab.getName ().indexOf (" ");
-						if (pos == -1)
-							tabName.append (gTab.getName ()).append ("<br>&nbsp;");
-						else
-						{
-							tabName.append (gTab.getName().substring (0, pos))
-							  .append ("<br>")
-							  .append (gTab.getName().substring(pos + 1));
-						}
-						if (gTab.isReadOnly())
-							tabName.append("</i>");
-						// Carlos Ruiz - globalqss - IDEMPIERE-38 Tabs from a same window can't be translated the same way
-						tabName.append("<!--").append(gTab.getAD_Tab_ID()).append("-->");
-						tabName.append ("</html>");
-						//	Add Tab - sets ALT-<number> and Shift-ALT-<x>
-						window.addTab (tabName.toString(), gTab, tabElement);
+						// FR [ 1757088 ]
+						gc.removeDataStatusListener(this);
+						GridSynchronizer synchronizer = new GridSynchronizer(m_Window, parent, gc);
+						if (parent == m_curGC)
+							synchronizer.activateChild();
+						included = parent.includeTab(gc,this,synchronizer);
 					}
-				}   //  Tab Loop
-			//  Tab background
-			//	window.setBackgroundColor(new AdempiereColor(Color.magenta, Color.green));
-			}   //  Type-MWindow
+				}
+				initSwitchLineAction();
+			}	//	normal tab
 
-			//  Single Workbench Window Tab
-			if (m_mWorkbench.getWindowCount() == 1)
+			if (!included)	//  Add to TabbedPane
 			{
-				window.setToolTipText(m_mWorkbench.getDescription(wb));
+				StringBuilder tabName = new StringBuilder ();
+				tabName.append ("<html>");
+				if (gTab.isReadOnly())
+					tabName.append("<i>");
+				int pos = gTab.getName ().indexOf (" ");
+				if (pos == -1)
+					tabName.append (gTab.getName ()).append ("<br>&nbsp;");
+				else
+				{
+					tabName.append (gTab.getName().substring (0, pos))
+					  .append ("<br>")
+					  .append (gTab.getName().substring(pos + 1));
+				}
+				if (gTab.isReadOnly())
+					tabName.append("</i>");
+				// Carlos Ruiz - globalqss - IDEMPIERE-38 Tabs from a same window can't be translated the same way
+				tabName.append("<!--").append(gTab.getAD_Tab_ID()).append("-->");
+				tabName.append ("</html>");
+				//	Add Tab - sets ALT-<number> and Shift-ALT-<x>
+				window.addTab (tabName.toString(), gTab, tabElement);
 			}
-			else
-			//  Add Workbench Window Tab
-			{
-				tabPanel.addTab(m_mWorkbench.getName(wb), m_mWorkbench.getIcon(wb), window, m_mWorkbench.getDescription(wb));
-			}
-			//  Used for Env.getHeader
-			Env.setContext(m_ctx, m_curWindowNo, "_WinInfo_WindowName", m_mWorkbench.getName(wb));
+		}   //  Tab Loop
+		//  Tab background
 
-		}   //  Workbench Loop
+		window.setToolTipText(m_Window.getDescription());
+		//  Used for Env.getHeader
+		Env.setContext(m_ctx, m_curWindowNo, "_WinInfo_WindowName", m_Window.getName());
 
 		//  stateChanged (<->) triggered
 		toolBar.setName(getTitle());
@@ -942,14 +858,14 @@ public final class APanel extends CPanel
 	private boolean zoomToDetailTab(MQuery query) {
 		if (query != null && query.getZoomTableName() != null && query.getZoomColumnName() != null)
     	{
-    		GridTab gTab = m_mWorkbench.getMWindow(0).getTab(0);
+    		GridTab gTab = m_Window.getTab(0);
     		if (!query.getZoomTableName().equalsIgnoreCase(gTab.getTableName()))
     		{
-    			int tabSize = m_mWorkbench.getMWindow(0).getTabCount();
+    			int tabSize = m_Window.getTabCount();
 
     	        for (int tab = 0; tab < tabSize; tab++)
     	        {
-    	        	gTab = m_mWorkbench.getMWindow(0).getTab(tab);
+    	        	gTab = m_Window.getTab(tab);
     	        	if (gTab.isSortTab())
     	        		continue;
 
@@ -971,7 +887,7 @@ public final class APanel extends CPanel
 		{
 			if (field.getColumnName().equalsIgnoreCase(query.getZoomColumnName()))
 			{
-				m_mWorkbench.getMWindow(0).initTab(tabIndex);
+				m_Window.initTab(tabIndex);
 				int parentId = DB.getSQLValue(null, "SELECT " + gTab.getLinkColumnName() + " FROM " + gTab.getTableName() + " WHERE " + query.getWhereClause());
 				if (parentId > 0)
 				{
@@ -982,10 +898,10 @@ public final class APanel extends CPanel
 					while (index > 0)
 					{
 						index--;
-						GridTab pTab = m_mWorkbench.getMWindow(0).getTab(index);
+						GridTab pTab = m_Window.getTab(index);
 						if (pTab.getTabLevel() < currentTab.getTabLevel())
 						{
-							m_mWorkbench.getMWindow(0).initTab(index);
+							m_Window.initTab(index);
 							if (index > 0)
 							{
 								if (pTab.getLinkColumnName() != null && pTab.getLinkColumnName().trim().length() > 0)
@@ -1012,7 +928,7 @@ public final class APanel extends CPanel
 					}
 					for(Map.Entry<Integer, Object[]> entry : parentMap.entrySet())
 					{
-						GridTab pTab = m_mWorkbench.getMWindow(0).getTab(entry.getKey());
+						GridTab pTab = m_Window.getTab(entry.getKey());
 						Object[] value = entry.getValue();
 						MQuery pquery = new MQuery(pTab.getAD_Table_ID());
 						pquery.addRestriction((String)value[0], "=", value[1]);
@@ -1131,20 +1047,6 @@ public final class APanel extends CPanel
 		return query;
 	}	//	initialQuery
 
-
-	/**
-	 *  Get Window Index
-	 *  @return Window Index
-	 */
-	private int getWindowIndex()
-	{
-		//  only one window
-		if (m_mWorkbench.getWindowCount() == 1)
-			return 0;
-		//  workbench
-		return tabPanel.getSelectedIndex();
-	}   //  getWindowIndex
-
 	/**
 	 *  Is first Tab (on Window)
 	 *  @return true if the panel displays the first tab
@@ -1160,7 +1062,7 @@ public final class APanel extends CPanel
 	 */
 	public Image getImage()
 	{
-		return m_mWorkbench.getImage(getWindowIndex());
+		return m_Window.getImage();
 	}	//	getImage
 
 
@@ -1362,112 +1264,87 @@ public final class APanel extends CPanel
 		boolean isAPanelTab = false;
 
 		//int previousIndex = 0;
-
-		//  Workbench Tab Change
-		if (tp.isWorkbench())
-		{
-			int WBIndex = tabPanel.getSelectedIndex();
-			m_curWindowNo = m_mWorkbench.getWindowNo(WBIndex);
-			//  Window Change
-			if (log.isLoggable(Level.INFO)) log.info("curWin=" + m_curWindowNo + " - Win=" + tp);
-			if (tp.getSelectedComponent() instanceof JTabbedPane)
-				m_curWinTab = (JTabbedPane)tp.getSelectedComponent();
-			else
-				throw new java.lang.IllegalArgumentException("Window does not contain Tabs");
-			if (m_curWinTab.getSelectedComponent() instanceof GridController) {
-				m_curGC = (GridController)m_curWinTab.getSelectedComponent();
-				initSwitchLineAction();
-			}
-		//	else if (m_curWinTab.getSelectedComponent() instanceof APanelTab)
-		//		isAPanelTab = true;
-			else
-				throw new java.lang.IllegalArgumentException("Window-Tab does not contain GridControler");
-			//  change pointers
-			m_curTabIndex = m_curWinTab.getSelectedIndex();
-		}
+	
+		//  Just a Tab Change
+		if (log.isLoggable(Level.INFO)) log.info("Tab=" + tp);
+		m_curWinTab = tp;
+		int tpIndex = m_curWinTab.getSelectedIndex();
+		//	detect no tab change
+		if (tpIndex == m_curTabIndex) return;
+		back = tpIndex < m_curTabIndex;
+		GridController gc = null;
+		if (m_curWinTab.getSelectedComponent() instanceof GridController)
+			gc = (GridController)m_curWinTab.getSelectedComponent();
+		else if (m_curWinTab.getSelectedComponent() instanceof APanelTab)
+			isAPanelTab = true;
 		else
+			throw new java.lang.IllegalArgumentException("Tab does not contain GridControler");
+		//  Save old Tab
+		if (m_curGC != null)
 		{
-			//  Just a Tab Change
-			if (log.isLoggable(Level.INFO)) log.info("Tab=" + tp);
-			m_curWinTab = tp;
-			int tpIndex = m_curWinTab.getSelectedIndex();
-			//	detect no tab change
-			if (tpIndex == m_curTabIndex) return;
-			back = tpIndex < m_curTabIndex;
-			GridController gc = null;
-			if (m_curWinTab.getSelectedComponent() instanceof GridController)
-				gc = (GridController)m_curWinTab.getSelectedComponent();
-			else if (m_curWinTab.getSelectedComponent() instanceof APanelTab)
-				isAPanelTab = true;
-			else
-				throw new java.lang.IllegalArgumentException("Tab does not contain GridControler");
-			//  Save old Tab
-			if (m_curGC != null)
-			{
-				m_curGC.stopEditor(true);
-				//  has anything changed?
-				if (m_curTab.needSave(true, false))
-				{   //  do we have real change
-					if (m_curTab.needSave(true, true))
+			m_curGC.stopEditor(true);
+			//  has anything changed?
+			if (m_curTab.needSave(true, false))
+			{   //  do we have real change
+				if (m_curTab.needSave(true, true))
+				{
+					//	Automatic Save
+					if (Env.isAutoCommit(m_ctx, m_curWindowNo))
 					{
-						//	Automatic Save
-						if (Env.isAutoCommit(m_ctx, m_curWindowNo))
+						if (!m_curTab.dataSave(true))
+						{	//  there is a problem, so we go back
+							showLastError();
+							m_curWinTab.setSelectedIndex(m_curTabIndex);
+							setBusy(false, true);
+							return;
+						}
+					}
+					//  explicitly ask when changing tabs
+					else if (ADialog.ask(m_curWindowNo, this, "SaveChanges?", m_curTab.getCommitWarning()))
+					{   //  yes we want to save
+						if (!m_curTab.dataSave(true))
+						{   //  there is a problem, so we go back
+							showLastError();
+							m_curWinTab.setSelectedIndex(m_curTabIndex);
+							setBusy(false, true);
+							return;
+						}
+					}
+					else    //  Don't save
+					{
+						int newRecord= m_curTab.getTableModel().getNewRow();     //VOSS COM
+
+						if( newRecord == -1)
+							m_curTab.dataIgnore();
+						else
 						{
-							if (!m_curTab.dataSave(true))
-							{	//  there is a problem, so we go back
-								showLastError();
-								m_curWinTab.setSelectedIndex(m_curTabIndex);
-								setBusy(false, true);
-								return;
-							}
+							m_curWinTab.setSelectedIndex(m_curTabIndex);
+							setBusy(false, true);
+							return;
 						}
-						//  explicitly ask when changing tabs
-						else if (ADialog.ask(m_curWindowNo, this, "SaveChanges?", m_curTab.getCommitWarning()))
-						{   //  yes we want to save
-							if (!m_curTab.dataSave(true))
-							{   //  there is a problem, so we go back
-								showLastError();
-								m_curWinTab.setSelectedIndex(m_curTabIndex);
-								setBusy(false, true);
-								return;
-							}
-						}
-						else    //  Don't save
-						{
-							int newRecord= m_curTab.getTableModel().getNewRow();     //VOSS COM
+					}
+	            }
 
-							if( newRecord == -1)
-								m_curTab.dataIgnore();
-							else
-							{
-								m_curWinTab.setSelectedIndex(m_curTabIndex);
-								setBusy(false, true);
-								return;
-							}
-						}
-		            }
+				else    //  new record, but nothing changed
+					m_curTab.dataIgnore();
+			}   //  there is a change
+		}
+		if (m_curAPanelTab != null)
+		{
+			m_curAPanelTab.saveData();
+			m_curAPanelTab.unregisterPanel();
+			m_curAPanelTab = null;
+		}
 
-					else    //  new record, but nothing changed
-						m_curTab.dataIgnore();
-				}   //  there is a change
-			}
-			if (m_curAPanelTab != null)
-			{
-				m_curAPanelTab.saveData();
-				m_curAPanelTab.unregisterPanel();
-				m_curAPanelTab = null;
-			}
-
-			//	new tab
-		//	if (m_curTabIndex >= 0)
-		//		m_curWinTab.setForegroundAt(m_curTabIndex, AdempierePLAF.getTextColor_Normal());
-		//	m_curWinTab.setForegroundAt(tpIndex, AdempierePLAF.getTextColor_OK());
-		//	previousIndex = m_curTabIndex;
-			m_curTabIndex = tpIndex;
-			if (!isAPanelTab) {
-				m_curGC = gc;
-				initSwitchLineAction();
-			}
+		//	new tab
+	//	if (m_curTabIndex >= 0)
+	//		m_curWinTab.setForegroundAt(m_curTabIndex, AdempierePLAF.getTextColor_Normal());
+	//	m_curWinTab.setForegroundAt(tpIndex, AdempierePLAF.getTextColor_OK());
+	//	previousIndex = m_curTabIndex;
+		m_curTabIndex = tpIndex;
+		if (!isAPanelTab) {
+			m_curGC = gc;
+			initSwitchLineAction();
 		}
 
 		//	Sort Tab Handling
@@ -1484,11 +1361,11 @@ public final class APanel extends CPanel
 		}
 		else	//	Cur Tab Setting
 		{
-			int gwTabIndex = m_mWorkbench.getMWindow(0).getTabIndex(m_curGC.getMTab());
+			int gwTabIndex = m_Window.getTabIndex(m_curGC.getMTab());
 			//boolean needValidate = false;
-			if (m_mWorkbench.getMWindow(0).isTabInitialized(gwTabIndex) == false)
+			if (m_Window.isTabInitialized(gwTabIndex) == false)
 			{
-				m_mWorkbench.getMWindow(0).initTab(gwTabIndex);
+				m_Window.initTab(gwTabIndex);
 				//needValidate = true;
 			}
 			m_curGC.activate();
@@ -1568,7 +1445,7 @@ public final class APanel extends CPanel
 		aParent.setEnabled(m_curTabIndex != 0 && m_curWinTab.getTabCount() > 1);
 
 		//	History (on first tab only)
-		if (m_mWorkbench.getMWindow(getWindowIndex()).isTransaction())
+		if (m_Window.isTransaction())
 			aHistory.setEnabled(isFirstTab());
 		else
 		{
@@ -1852,7 +1729,7 @@ public final class APanel extends CPanel
 			{
 				if (m_curTab.getRecord_ID() <= 0)
 					;
-				else if (m_curTab.getTabNo() == 0 && m_mWorkbench.getMWindow(getWindowIndex()).isTransaction())
+				else if (m_curTab.getTabNo() == 0 && m_Window.isTransaction())
 					AEnv.startWorkflowProcess(m_curTab.getAD_Table_ID(), m_curTab.getRecord_ID());
 				else
 					AEnv.startWorkflowProcess(m_curTab.getAD_Table_ID(), m_curTab.getRecord_ID());
@@ -2558,7 +2435,7 @@ public final class APanel extends CPanel
 	private void cmd_history()
 	{
 		if (log.isLoggable(Level.INFO)) log.info("");
-		if (m_mWorkbench.getMWindow(getWindowIndex()).isTransaction())
+		if (m_Window.isTransaction())
 		{
 			if (m_curTab.needSave(true, true) && !cmd_save(false))
 				return;
@@ -2599,7 +2476,7 @@ public final class APanel extends CPanel
 	private void cmd_help()
 	{
 		log.info("");
-		Help hlp = new Help (AEnv.getFrame(this), this.getTitle(), m_mWorkbench.getMWindow(getWindowIndex()));
+		Help hlp = new Help (AEnv.getFrame(this), this.getTitle(), m_Window);
 		hlp.setVisible(true);
 	}	//	cmd_help
 
@@ -3017,8 +2894,6 @@ public final class APanel extends CPanel
 	public String toString()
 	{
 		String s = "APanel[curWindowNo=" + m_curWindowNo;
-		if (m_mWorkbench != null)
-			s += ",WB=" + m_mWorkbench.toString();
 		s += "]";
 		return s;
 	}   //  toString

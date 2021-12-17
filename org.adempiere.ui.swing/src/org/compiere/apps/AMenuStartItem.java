@@ -144,17 +144,12 @@ public class AMenuStartItem extends Thread implements ActionListener
 				if (Action.equals("W"))				//	Window
 				{
 					cmd = rs.getInt("AD_Window_ID");
-					startWindow(0, cmd);
+					startWindow(cmd);
 				}
 				else if (Action.equals("P") || Action.equals("R"))	//	Process & Report
 				{
 					cmd = rs.getInt("AD_Process_ID");
 					startProcess(cmd, IsSOTrx);
-				}
-				else if (Action.equals("B"))		//	Workbench
-				{
-					cmd = rs.getInt("AD_Workbench_ID");
-					startWindow (cmd, 0);
 				}
 				else if (Action.equals("F"))		//	WorkFlow
 				{
@@ -221,10 +216,9 @@ public class AMenuStartItem extends Thread implements ActionListener
 		/**
 		 *	Start Window
 		 *
-		 * @param AD_Workbench_ID workbench
 		 * @param AD_Window_ID	window
 		 */
-		private void startWindow(int AD_Workbench_ID, int AD_Window_ID)
+		private void startWindow(int AD_Window_ID)
 		{
 			AWindow frame = (AWindow)AEnv.showWindow(AD_Window_ID); 
 			if (frame != null) {
@@ -243,10 +237,7 @@ public class AMenuStartItem extends Thread implements ActionListener
 			SwingUtilities.invokeLater(m_updatePB);			//	1
 			frame = new AWindow(m_menu.getGraphicsConfiguration());
 			boolean OK = false;
-			if (AD_Workbench_ID != 0)
-				OK = frame.initWorkbench(AD_Workbench_ID);
-			else
-				OK = frame.initWindow(AD_Window_ID, null);	//	No Query Value
+			OK = frame.initWindow(AD_Window_ID, null);	//	No Query Value
 			if (!OK)
 				return;
 
