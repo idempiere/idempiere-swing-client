@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.adempiere.ui.swing.feature_9.0.0.qualifier.jar" id="org.adempiere.ui.swing.feature" version="9.0.0.qualifier">
+   <feature url="features/org.adempiere.ui.swing.feature_10.0.0.qualifier.jar" id="org.adempiere.ui.swing.feature" version="10.0.0.qualifier">
       <category name="idempiere.swing.client"/>
    </feature>
    <category-def name="idempiere.swing.client" label="idempiere swing client"/>
