@@ -26,6 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.VetoableChangeListener;
+import java.sql.Timestamp;
 import java.util.Vector;
 import java.util.logging.Level;
 
@@ -417,7 +418,7 @@ public class VAllocation extends Allocation
 	{
 		checkBPartner();
 		
-		Vector<Vector<Object>> data = getPaymentData(multiCurrency.isSelected(), dateField.getValue(), paymentTable);
+		Vector<Vector<Object>> data = getPaymentData(multiCurrency.isSelected(), (Timestamp)dateField.getValue(), (String)null);
 		Vector<String> columnNames = getPaymentColumnNames(multiCurrency.isSelected());
 		
 		//  Remove previous listeners
@@ -430,7 +431,7 @@ public class VAllocation extends Allocation
 		setPaymentColumnClass(paymentTable, multiCurrency.isSelected());
 		//
 
-		data = getInvoiceData(multiCurrency.isSelected(), dateField.getValue(), invoiceTable);
+		data = getInvoiceData(multiCurrency.isSelected(), (Timestamp)dateField.getValue(), (String)null);
 		columnNames = getInvoiceColumnNames(multiCurrency.isSelected());
 		
 		//  Remove previous listeners
@@ -441,9 +442,6 @@ public class VAllocation extends Allocation
 		modelI.addTableModelListener(this);
 		invoiceTable.setModel(modelI);
 		setInvoiceColumnClass(invoiceTable, multiCurrency.isSelected());
-		//
-		
-		calculate(multiCurrency.isSelected());
 		
 		//  Calculate Totals
 		calculate();
@@ -451,6 +449,8 @@ public class VAllocation extends Allocation
 	
 	public void calculate()
 	{
+		calculate(paymentTable, invoiceTable, multiCurrency.isSelected());
+
 		allocDate = null;
 		
 		paymentInfo.setText(calculatePayment(paymentTable, multiCurrency.isSelected()));
@@ -484,7 +484,7 @@ public class VAllocation extends Allocation
 			{
 				public void run(String trxName)
 				{
-					MAllocationHdr allocation = saveData(m_WindowNo, dateField.getValue(), paymentTable, invoiceTable, trxName);
+					MAllocationHdr allocation = saveData(m_WindowNo, (Timestamp)dateField.getValue(), paymentTable, invoiceTable, trxName);
 					if (allocation != null)
 						statusBar.setStatusLine(allocation.getDocumentNo());
 				}
