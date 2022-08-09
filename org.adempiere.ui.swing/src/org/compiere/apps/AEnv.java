@@ -16,9 +16,6 @@
  *****************************************************************************/
 package org.compiere.apps;
 
-import static org.compiere.model.SystemIDs.TABLE_AD_WF_ACTIVITY;
-import static org.compiere.model.SystemIDs.TABLE_AD_WF_PROCESS;
-
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -56,6 +53,8 @@ import org.adempiere.base.IResourceFinder;
 import org.compiere.acct.Doc;
 import org.compiere.db.CConnection;
 import org.compiere.grid.ed.Calculator;
+import org.compiere.model.I_AD_WF_Activity;
+import org.compiere.model.I_AD_WF_Process;
 import org.compiere.model.MMenu;
 import org.compiere.model.MQuery;
 import org.compiere.model.MRole;
@@ -744,12 +743,12 @@ public final class AEnv
 		if (s_workflow == null)
 		{
 			s_workflow = Boolean.FALSE;					
-			int AD_Table_ID = TABLE_AD_WF_PROCESS;	//	AD_WF_Process	
+			int AD_Table_ID = I_AD_WF_Process.Table_ID;	//	AD_WF_Process	
 			if (MRole.getDefault().isTableAccess (AD_Table_ID, true))	//	RO
 				s_workflow = Boolean.TRUE;
 			else
 			{
-				AD_Table_ID = TABLE_AD_WF_ACTIVITY;	//	AD_WF_Activity	
+				AD_Table_ID = I_AD_WF_Activity.Table_ID;	//	AD_WF_Activity	
 				if (MRole.getDefault().isTableAccess (AD_Table_ID, true))	//	RO
 					s_workflow = Boolean.TRUE;
 				else
