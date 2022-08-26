@@ -47,9 +47,9 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.DialShape;
 import org.jfree.chart.plot.MeterInterval;
 import org.jfree.chart.plot.MeterPlot;
-import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.Range;
 import org.jfree.data.general.DefaultValueDataset;
+import org.jfree.ui.RectangleInsets;
 
 /**
  * 	Performance Indicator
