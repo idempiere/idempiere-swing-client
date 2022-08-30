@@ -157,7 +157,7 @@ public class HtmlDashboard extends JPanel implements MouseListener,
 					int AD_User_ID = Env.getAD_User_ID(Env.getCtx());
 		        	int AD_Role_ID = Env.getAD_Role_ID(Env.getCtx());
 		        	
-		        	MDashboardPreference[] dps = MDashboardPreference.getForSession(AD_User_ID, AD_Role_ID);
+		        	MDashboardPreference[] dps = MDashboardPreference.getForSession(AD_User_ID, AD_Role_ID, true);
 		        	if (dps.length == 0)
 		        		createDashboardPreference();
 		        	
