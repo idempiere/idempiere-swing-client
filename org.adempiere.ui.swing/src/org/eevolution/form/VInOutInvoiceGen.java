@@ -38,6 +38,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.plaf.AdempierePLAF;
 import org.adempiere.util.Callback;
 import org.adempiere.util.IProcessUI;
@@ -930,4 +931,11 @@ public class VInOutInvoiceGen extends CPanel
 		if(callback != null)
 			callback.onCallback(s);		
 	}
+
+	@Override
+	public void askForSecretInput(String message, Callback<String> callback) {
+		// TODO Auto-generated method stub
+		throw new AdempiereException("Not implemented yet");
+	}
+
 }	//	VInOutGen

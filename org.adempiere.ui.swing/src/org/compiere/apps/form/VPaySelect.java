@@ -36,6 +36,7 @@ import javax.swing.JScrollPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.util.Callback;
 import org.adempiere.util.IProcessUI;
 import org.compiere.apps.ADialog;
@@ -469,5 +470,11 @@ public class VPaySelect extends PaySelect implements FormPanel, ActionListener, 
 		String s = ADialog.askForInput(m_WindowNo, null, message);
 		if(callback != null)
 			callback.onCallback(s);
+	}
+
+	@Override
+	public void askForSecretInput(String message, Callback<String> callback) {
+		// TODO Auto-generated method stub
+		throw new AdempiereException("Not implemented yet");
 	}
 }   //  VPaySelect

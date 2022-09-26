@@ -74,6 +74,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.util.Callback;
 import org.adempiere.util.IProcessUI;
 import org.compiere.apps.form.FormFrame;
@@ -3063,6 +3064,12 @@ public final class APanel extends CPanel
 		String s = ADialog.askForInput(m_curWindowNo, this, message);
 		if(callback != null)
 			callback.onCallback(s);		
+	}
+
+	@Override
+	public void askForSecretInput(String message, Callback<String> callback) {
+		// TODO Auto-generated method stub
+		throw new AdempiereException("Not implemented yet");
 	}
 
 }	//	APanel

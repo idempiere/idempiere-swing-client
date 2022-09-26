@@ -685,4 +685,10 @@ public class ProcessDialog extends CFrame
 			callback.onCallback(s);
 	}
 
+	@Override
+	public void askForSecretInput(String message, Callback<String> callback) {
+		// TODO Auto-generated method stub
+		throw new AdempiereException("Not implemented yet");
+	}
+
 }	//	ProcessDialog
