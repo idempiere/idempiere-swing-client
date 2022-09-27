@@ -11,7 +11,7 @@
 
 	<properties>
 		<revision>10.0.0-SNAPSHOT</revision>
-		<tycho.version>2.7.3</tycho.version>
+		<tycho.version>2.7.5</tycho.version>
 		<tycho.extras.version>${tycho.version}</tycho.extras.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.dependency.version>3.1.1</maven.dependency.version>
@@ -114,7 +114,7 @@
 											tycho-compiler-plugin
 										</artifactId>
 										<versionRange>
-											[2.7.3,)
+											[2.7.5,)
 										</versionRange>
 										<goals>
 											<goal>
@@ -135,7 +135,7 @@
 											tycho-ds-plugin
 										</artifactId>
 										<versionRange>
-											[2.7.3,)
+											[2.7.5,)
 										</versionRange>
 										<goals>
 											<goal>
