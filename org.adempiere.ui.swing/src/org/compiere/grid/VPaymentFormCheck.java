@@ -130,25 +130,6 @@ public class VPaymentFormCheck extends PaymentFormCheck implements ActionListene
 			sStatus.setText(m_mPayment.getR_PnRef());
 			sAmountField.setValue(m_mPayment.getPayAmt());
 		}
-		
-		//	Is the currency an EMU currency?
-		Integer C_Currency_ID = Integer.valueOf(m_C_Currency_ID);
-		if (s_Currencies.containsKey(C_Currency_ID))
-		{
-			Enumeration<Integer> en = s_Currencies.keys();
-			while (en.hasMoreElements())
-			{
-				Object key = en.nextElement();
-				sCurrencyCombo.addItem(s_Currencies.get(key));
-			}
-			sCurrencyCombo.addActionListener(this);
-			sCurrencyCombo.setSelectedItem(s_Currencies.get(C_Currency_ID));
-		}
-		else	//	No EMU Currency
-		{
-			sCurrencyLabel.setVisible(false);	//	Check
-			sCurrencyCombo.setVisible(false);
-		}
 
 		ArrayList<KeyNamePair> list = getBankAccountList();
 		for (KeyNamePair pp : list)

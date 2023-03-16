@@ -94,7 +94,7 @@ public abstract class VPaymentFormDirect extends PaymentFormDirect implements Ac
 			tStatus.setText(m_mPayment.getR_PnRef());
 		}
 		
-		ArrayList<KeyNamePair> list = getBPBankAccountList();
+		ArrayList<KeyNamePair> list = getBankAccountList();
 		for (KeyNamePair pp : list)
 			tAccountCombo.addItem(pp);
 		
