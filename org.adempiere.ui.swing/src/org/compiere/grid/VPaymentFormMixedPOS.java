@@ -58,4 +58,8 @@ public class VPaymentFormMixedPOS extends PaymentFormMixedPOS {
 	public Object getWindow() {
 		return dialog;
 	}
+
+	@Override
+	protected void afterSave(boolean success) {
+	}
 }

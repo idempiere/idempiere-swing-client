@@ -20,3 +20,9 @@
 ## Eclipse
 * at your idempiere workspace, import existing projects from idempiere-swing-client
 * run using swingclient.launch
+
+NOTE!!
+
+If you have run the server variant before, your idempiere.properties file is in the server's home directory.
+
+The Swing Client will look for your idempiere.properties in $USER_HOME
